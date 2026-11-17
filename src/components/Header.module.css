@@ -1,0 +1,19 @@
+.header {
+  position: absolute;
+  inset: var(--header-top) var(--gutter) auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 4;
+  font-size: var(--type-nav);
+  opacity: 0;
+  pointer-events: none;
+}
+.nav { display: flex; flex-direction: row; gap: var(--nav-gap); }
+.brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.brand img { display: block; width: var(--mark-width); }

@@ -1,0 +1,103 @@
+.journey {
+  height: var(--journey-height);
+  position: relative;
+  z-index: 2;
+}
+.stage {
+  height: 100vh;
+  height: 100svh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  background: var(--color-night);
+  isolation: isolate;
+}
+.light { position: absolute; inset: 0; width: 100%; height: 100%; }
+.journey[data-webgl='off'] .light { background: var(--gradient-fallback); }
+.intro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--type-intro);
+  line-height: var(--leading-intro);
+  letter-spacing: var(--tracking-display);
+  pointer-events: none;
+  opacity: 0;
+}
+.intro > span {
+  display: block;
+  will-change: filter, transform, opacity;
+  paint-order: stroke fill;
+}
+.hero, .portalCopy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform, filter;
+}
+.heroTitle {
+  font-size: var(--type-hero);
+  font-weight: var(--weight-hero);
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  text-align: center;
+  margin: 0;
+  opacity: 0.3;
+}
+.journey[data-shader-word] .heroTitle { opacity: 0; }
+.heroLine {
+  position: absolute;
+  bottom: var(--hero-line-bottom);
+  font-size: var(--type-hero-line);
+  text-align: center;
+  margin: 0 var(--hero-line-margin);
+}
+.portalCopy { mix-blend-mode: difference; }
+.portalTitle {
+  font-size: var(--type-portal);
+  line-height: var(--leading-portal);
+  letter-spacing: var(--tracking-display);
+  font-weight: var(--weight-regular);
+  text-align: center;
+  margin: 0;
+}
+.aside {
+  position: absolute;
+  top: var(--aside-top);
+  bottom: var(--aside-bottom);
+  font-size: var(--type-aside);
+  line-height: var(--leading-small);
+  margin: 0;
+  max-width: var(--aside-width);
+}
+.left { left: var(--gutter); }
+.right { right: var(--gutter); }
+.note {
+  position: absolute;
+  bottom: var(--note-bottom);
+  width: 100%;
+  text-align: center;
+  color: var(--color-note);
+  font-size: var(--type-note);
+  letter-spacing: var(--tracking-note);
+  opacity: 0;
+}
+.note span {
+  display: block;
+  margin-top: var(--note-arrow-gap);
+  font-size: var(--type-arrow);
+  animation: bob var(--bob) infinite;
+}
+@keyframes bob {
+  50% { transform: translateY(var(--bob-distance)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .note span { animation: none; }
+}

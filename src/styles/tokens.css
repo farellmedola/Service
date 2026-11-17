@@ -1,0 +1,136 @@
+:root {
+  /* Palette */
+  --color-night: #000000;
+  --color-white: #ffffff;
+  --color-ink: #000000;
+  --color-rule: #222222;
+  --color-note: #aaaaaa;
+  --color-focus: #ff98e7;
+  --gradient-fallback: radial-gradient(ellipse at 50% 50%, #ffb342, #ff4a65 35%, #ec4dcd 65%, #000);
+  --rhythm-lilac: #b6adff;
+  --rhythm-magenta: #ff35e3;
+  --rhythm-coral: #ff4e52;
+  --rhythm-gold: #ffb923;
+
+  /* Type */
+  --font-sans: Involve, Arial, sans-serif;
+  --weight-regular: 400;
+  --weight-hero: 600;
+  --tracking-display: -0.04em;
+  --tracking-body: -0.025em;
+  --tracking-note: 0.04em;
+
+  --type-intro: clamp(90px, 11vw, 190px);
+  --type-hero: clamp(80px, 24vw, 440px);
+  --type-portal: clamp(58px, 6.7vw, 120px);
+  --type-about: clamp(42px, 5.4vw, 85px);
+  --type-nav: 18px;
+  --type-feature-title: 20px;
+  --type-feature: 14px;
+  --type-small: 13px;
+  --type-aside: 13px;
+  --type-hero-line: 13px;
+  --type-footer: 13px;
+  --type-note: 11px;
+  --type-arrow: 20px;
+
+  --leading-intro: 0.77;
+  --leading-portal: 0.94;
+  --leading-about: 1.02;
+  --leading-feature: 1.38;
+  --leading-small: 1.2;
+
+  /* Layout */
+  --gutter: 30px;
+  --journey-height: 720vh;
+  --header-top: 30px;
+  --nav-gap: 24px;
+  --mark-width: 45px;
+  --aside-top: 47%;
+  --aside-bottom: auto;
+  --aside-width: 180px;
+  --hero-line-bottom: 32px;
+  --hero-line-margin: 24px;
+  --note-bottom: 30px;
+  --note-arrow-gap: 12px;
+  --main-top: 26px;
+  --main-bottom: 90px;
+  --main-scroll-margin: 20px;
+  --features-scroll-margin: 60px;
+  --label-gap: 14px;
+  --bullet-gap: 8px;
+  --rhythm-width: 100%;
+  --rhythm-shift: 0%;
+  --rhythm-margin: 55px 0 50px;
+  --about-columns: 1.2fr 1fr;
+  --about-gap: 8vw;
+  --features-top: 155px;
+  --features-gap: 45px 35px;
+  --feature-title-gap: 13px;
+  --feature-measure: 36ch;
+  --footer-top: 28px;
+  --footer-gap: 280px;
+  --footer-top-height: 34px;
+  --wordmark-bleed: 20px;
+  --wordmark-sink: 5px;
+  --focus-offset: 7px;
+  --skip-inset: 20px;
+  --skip-padding: 12px;
+
+  /* Motion */
+  --hover-opacity: 0.65;
+  --bob: 2s;
+  --bob-distance: 5px;
+}
+
+@supports (height: 1svh) {
+  :root { --journey-height: 720svh; }
+}
+
+@media (min-width: 1800px) {
+  :root {
+    --type-feature: 18px;
+    --type-feature-title: 25px;
+    --type-aside: 16px;
+    --aside-width: 210px;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --journey-height: 650vh;
+    --header-top: 22px;
+    --gutter: 18px;
+    --type-nav: 12px;
+    --nav-gap: 13px;
+    --mark-width: 32px;
+    --type-intro: clamp(100px, 24vw, 180px);
+    --type-portal: clamp(48px, 10vw, 72px);
+    --aside-top: auto;
+    --aside-bottom: 42px;
+    --type-aside: 10px;
+    --aside-width: 145px;
+    --type-hero-line: 11px;
+    --hero-line-bottom: 26px;
+    --main-top: 20px;
+    --main-bottom: 60px;
+    --rhythm-width: 170%;
+    --rhythm-shift: -20%;
+    --rhythm-margin: 45px 0;
+    --about-columns: 1fr;
+    --about-gap: 45px;
+    --type-about: 52px;
+    --features-top: 0px;
+    --features-gap: 35px 23px;
+    --type-feature: 13px;
+    --type-feature-title: 18px;
+    --footer-top: 24px;
+    --type-footer: 10px;
+  }
+}
+
+@supports (height: 1svh) {
+  @media (max-width: 760px) {
+    :root { --journey-height: 650svh; }
+  }
+}

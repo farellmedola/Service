@@ -1,0 +1,55 @@
+.main {
+  background: var(--color-white);
+  color: var(--color-ink);
+  padding: var(--main-top) var(--gutter) var(--main-bottom);
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  scroll-margin-top: var(--main-scroll-margin);
+}
+.label {
+  border-top: 1px solid var(--color-rule);
+  padding-top: var(--label-gap);
+  font-size: var(--type-small);
+}
+.label::before { content: '•'; margin-right: var(--bullet-gap); }
+.rhythm {
+  display: block;
+  width: var(--rhythm-width);
+  max-width: none;
+  height: auto;
+  margin: var(--rhythm-margin);
+  transform: translateX(var(--rhythm-shift));
+}
+.grid {
+  display: grid;
+  grid-template-columns: var(--about-columns);
+  gap: var(--about-gap);
+}
+.title {
+  font-size: var(--type-about);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-about);
+  margin: 0;
+}
+.features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--features-gap);
+  padding-top: var(--features-top);
+  scroll-margin-top: var(--features-scroll-margin);
+}
+.featureTitle {
+  font-size: var(--type-feature-title);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-display);
+  margin: 0 0 var(--feature-title-gap);
+}
+.featureText {
+  font-size: var(--type-feature);
+  line-height: var(--leading-feature);
+  letter-spacing: var(--tracking-body);
+  margin: 0;
+  max-width: var(--feature-measure);
+}

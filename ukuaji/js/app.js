@@ -1,110 +1,30 @@
-import { getExchanges, getSymbols, getCandles, searchSymbols } from './data.js';
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const S = { exchange: 'BRVM', exchanges: [], instruments: [], selected: null, history: [], range: '1Y', tab: 'overview', error: null };
-const canvas = $('#chart'), ctx = canvas.getContext('2d');
-const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('fr-FR', { maximumFractionDigits: 4 }) : '—';
-const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
-function rows(p) {
-  if (Array.isArray(p)) return p;
-  for (const k of ['data','stocks','exchanges','results','items','quotes','instruments']) {
-    if (Array.isArray(p?.[k])) return p[k];
-    if (Array.isArray(p?.data?.[k])) return p.data[k];
-  }
-  return p?.data && typeof p.data === 'object' ? rows(p.data) : [];
-}
-const code = x => String(x.exchange_code || x.code || x.exchange || x.symbol || '').toUpperCase();
-const symbol = x => String(x.ticker || x.symbol || x.code || '').toUpperCase();
-function price(x) {
-  for (const k of ['price','last_price','current_price','close','last','currentPrice']) {
-    const n = Number(x?.[k]); if (Number.isFinite(n) && n > 0) return n;
-  }
-  return null;
-}
-const stamp = p => p?.updated_at || p?.meta?.updated_at || p?.meta?.as_of || p?.data?.updated_at || p?.data?.as_of || null;
-const dateLabel = d => d ? new Date(d).toLocaleString('fr-FR', { dateStyle:'medium', timeStyle:'short' }) : 'Horodatage non communiqué';
-function message(text, error = false) { $('#side-body').innerHTML = `<p class="status-message ${error?'error':''}">${esc(text)}</p>`; }
-function normalize(x) {
-  return { symbol:symbol(x), name:x.name || x.company_name || x.company || x.ticker || x.symbol || 'Nom non communiqué',
-    exchange:String(x.exchange || x.exchange_code || S.exchange).toUpperCase(), currency:x.currency || x.currency_code || '',
-    price:price(x), change:Number.isFinite(Number(x.change_pct ?? x.changePercentage)) ? Number(x.change_pct ?? x.changePercentage) : null,
-    volume:Number.isFinite(Number(x.volume)) ? Number(x.volume) : null, updatedAt:x.updated_at || x.as_of || null };
-}
-function draw() {
-  const r=canvas.getBoundingClientRect(),d=window.devicePixelRatio||1;
-  canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);ctx.setTransform(d,0,0,d,0,0);
-  const w=r.width,h=r.height;ctx.clearRect(0,0,w,h);const empty=$('#chart-empty'),points=S.history;
-  if(!points.length){empty.hidden=false;empty.textContent=S.error||'Historique non disponible pour cet instrument ou cette formule API.';return;}
-  const vals=points.map(p=>p.close).filter(Number.isFinite);
-  if(vals.length<2){empty.hidden=false;empty.textContent='Pas assez de points historiques fournis pour tracer une courbe.';return;}
-  empty.hidden=true;const min=Math.min(...vals),max=Math.max(...vals),span=max-min||1,l=18,rr=78,t=22,b=30;
-  ctx.font='12px Instrument Sans, sans-serif';ctx.strokeStyle='rgba(145,170,150,.18)';ctx.fillStyle='#91a99a';
-  for(let i=0;i<=4;i++){const y=t+(h-t-b)*i/4;ctx.beginPath();ctx.moveTo(l,y);ctx.lineTo(w-rr,y);ctx.stroke();ctx.fillText(fmt(max-span*i/4),w-rr+8,y+4);}
-  const X=i=>l+(w-l-rr)*i/(vals.length-1),Y=v=>t+(h-t-b)*(max-v)/span;
-  ctx.beginPath();vals.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));ctx.strokeStyle='#e3c277';ctx.lineWidth=2;ctx.stroke();ctx.lineWidth=1;
-  const first=points[0].date||points[0].t,last=points.at(-1).date||points.at(-1).t;
-  if(first)ctx.fillText(new Date(first).toLocaleDateString('fr-FR'),l,h-8);
-  if(last){const label=new Date(last).toLocaleDateString('fr-FR');ctx.fillText(label,Math.max(l,w-rr-ctx.measureText(label).width),h-8);}
-}
-function head() {
-  const el=$('#head'),x=S.selected;
-  if(!x){el.innerHTML=`<h2>${esc(S.exchange)} · Marché</h2><span class="ex">${S.error?'Données indisponibles':'Sélectionnez un instrument.'}</span>`;return;}
-  const change=x.change===null?'Variation non fournie':`${x.change>0?'+':''}${fmt(x.change)} %`;
-  el.innerHTML=`<h2>${esc(x.name)}</h2><span class="ex">${esc(x.symbol)} · ${esc(x.exchange)} · ${esc(x.currency||'Devise non fournie')}</span><span class="price num">${x.price===null?'Cours indisponible':fmt(x.price)+' '+esc(x.currency)}</span><span>${change}</span>`;
-}
-function list() {
-  const el=$('#side-body');
-  if(!S.instruments.length){message(S.error||'Aucun instrument retourné par le fournisseur pour cette place.',!!S.error);return;}
-  el.innerHTML=S.instruments.map(x=>`<button class="instrument-row ${S.selected?.symbol===x.symbol?'on':''}" data-symbol="${encodeURIComponent(x.symbol)}"><span><b>${esc(x.symbol)}</b><small>${esc(x.name)}</small></span><span class="instrument-price">${x.price===null?'Cours indisponible':fmt(x.price)+' '+esc(x.currency)}<small>${x.change===null?'Variation non fournie':`${x.change>0?'+':''}${fmt(x.change)} %`}</small></span></button>`).join('');
-}
-function dock() {
-  const el=$('#dock-body'),x=S.selected;
-  if(S.tab==='sources'){
-    const d=x?.updatedAt||S.exchangeMeta?.updated_at||S.historyMeta?.updated_at;
-    el.innerHTML=`<p class="empty">Fournisseur : Mansa API. Dernière mise à jour communiquée : <b>${esc(dateLabel(d))}</b>. La fraîcheur dépend du flux et des métadonnées réellement retournées. Aucun cours n’est extrapolé.</p>`;return;
-  }
-  el.innerHTML=x?`<p class="empty">Instrument : <b>${esc(x.symbol)}</b>. Cours : <b>${x.price===null?'indisponible':fmt(x.price)+' '+esc(x.currency)}</b>. Volume : <b>${x.volume===null?'non communiqué':fmt(x.volume)}</b>. Aucun solde ni portefeuille local n’est inventé.</p>`:'<p class="empty">Les positions et ordres seront lus auprès du courtier partenaire. Aucun portefeuille fictif n’est créé.</p>';
-}
-async function history() {
-  S.history=[];S.error=null;draw();if(!S.selected?.symbol)return;
-  try{
-    const p=await getCandles(S.exchange,S.selected.symbol,S.range);
-    const raw=Array.isArray(p?.data?.points)?p.data.points:Array.isArray(p?.points)?p.points:rows(p),cents=p?.data?.price_unit==='cents';
-    S.history=raw.map(x=>{const n=Number(x.close??x.c);return{date:x.date||x.t||x.timestamp,close:Number.isFinite(n)?(cents?n/100:n):null};}).filter(x=>x.close!==null);
-    S.historyMeta=p?.meta||{};
-  }catch(e){S.error=e.message;}
-  draw();dock();
-}
-async function exchange(exchangeCode) {
-  S.exchange=exchangeCode;S.selected=null;S.instruments=[];S.history=[];S.error=null;
-  $$('[data-ex]').forEach(b=>b.classList.toggle('on',b.dataset.ex===S.exchange));head();draw();dock();message(`Récupération des instruments ${S.exchange} depuis Mansa API…`);
-  try{
-    const p=await getSymbols(S.exchange);S.instruments=rows(p).map(normalize).filter(x=>x.symbol);
-    const asOf=stamp(p);S.instruments.forEach(x=>{x.updatedAt ||= asOf;});S.exchangeMeta=p?.meta||{};
-    if(!S.instruments.length){S.error='Le fournisseur n’a retourné aucun instrument pour cette place.';list();head();return;}
-    S.selected=S.instruments[0];list();head();dock();await history();
-  }catch(e){S.error=e.message;list();head();draw();dock();}
-}
-async function boot(){
-  try{
-    const p=await getExchanges();S.exchanges=rows(p);const available=S.exchanges.map(code);
-    $$('[data-ex]').forEach(b=>{b.disabled=available.length>0&&!available.includes(b.dataset.ex);});
-    await exchange(available.includes(S.exchange)?S.exchange:(available[0]||S.exchange));
-  }catch(e){S.error=e.message;head();draw();dock();message(e.message,true);}
-}
+import {getExchanges,getSymbols,getCandles,searchSymbols} from './data.js';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const S={exchange:'BRVM',exchanges:[],instruments:[],selected:null,history:[],range:'1Y',tab:'overview',error:null};
+const canvas=$('#chart'),ctx=canvas.getContext('2d');
+const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString('fr-FR',{maximumFractionDigits:4}):'—';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function rows(p){if(Array.isArray(p))return p;for(const k of ['data','stocks','exchanges','results','items','quotes','instruments']){if(Array.isArray(p?.[k]))return p[k];if(Array.isArray(p?.data?.[k]))return p.data[k];}return p?.data&&typeof p.data==='object'?rows(p.data):[];}
+const code=x=>String(x.exchange_code||x.code||x.exchange||x.symbol||'').toUpperCase();
+const symbol=x=>String(x.ticker||x.symbol||x.code||'').toUpperCase();
+function price(x){for(const k of ['price','last_price','current_price','close','last','currentPrice']){const n=Number(x?.[k]);if(Number.isFinite(n)&&n>0)return n;}return null;}
+const stamp=p=>p?.updated_at||p?.meta?.updated_at||p?.meta?.as_of||p?.data?.updated_at||p?.data?.as_of||null;
+const dateLabel=d=>d&&!Number.isNaN(Date.parse(d))?new Date(d).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'}):'Horodatage non communiqué';
+function message(text,error=false){$('#side-body').innerHTML=`<p class="status-message ${error?'error':''}">${esc(text)}</p>`;}
+function normalize(x){const rawChange=x.change_pct??x.changePercentage;return{symbol:symbol(x),name:x.name||x.company_name||x.company||x.ticker||x.symbol||'Nom non communiqué',exchange:String(x.exchange||x.exchange_code||S.exchange).toUpperCase(),currency:x.currency||x.currency_code||'',price:price(x),change:rawChange==null||rawChange===''?null:(Number.isFinite(Number(rawChange))?Number(rawChange):null),volume:x.volume==null||x.volume===''?null:(Number.isFinite(Number(x.volume))?Number(x.volume):null),updatedAt:x.updated_at||x.as_of||null};}
+function draw(){const r=canvas.getBoundingClientRect(),d=window.devicePixelRatio||1;canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);ctx.setTransform(d,0,0,d,0,0);const w=r.width,h=r.height;ctx.clearRect(0,0,w,h);const empty=$('#chart-empty'),points=S.history;if(!points.length){empty.hidden=false;empty.textContent=S.error||'Historique non disponible pour cet instrument ou cette formule API.';return;}const vals=points.map(p=>p.close).filter(Number.isFinite);if(vals.length<2){empty.hidden=false;empty.textContent='Pas assez de points historiques fournis pour tracer une courbe.';return;}empty.hidden=true;const min=Math.min(...vals),max=Math.max(...vals),span=max-min||1,l=18,rr=78,t=22,b=30;ctx.font='12px Instrument Sans,sans-serif';ctx.strokeStyle='rgba(145,170,150,.18)';ctx.fillStyle='#91a99a';for(let i=0;i<=4;i++){const y=t+(h-t-b)*i/4;ctx.beginPath();ctx.moveTo(l,y);ctx.lineTo(w-rr,y);ctx.stroke();ctx.fillText(fmt(max-span*i/4),w-rr+8,y+4);}const X=i=>l+(w-l-rr)*i/(vals.length-1),Y=v=>t+(h-t-b)*(max-v)/span;ctx.beginPath();vals.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));ctx.strokeStyle='#e3c277';ctx.lineWidth=2;ctx.stroke();ctx.lineWidth=1;const first=points[0].date||points[0].t,last=points.at(-1).date||points.at(-1).t;if(first)ctx.fillText(new Date(first).toLocaleDateString('fr-FR'),l,h-8);if(last){const label=new Date(last).toLocaleDateString('fr-FR');ctx.fillText(label,Math.max(l,w-rr-ctx.measureText(label).width),h-8);}}
+function head(){const el=$('#head'),x=S.selected;if(!x){el.innerHTML=`<h2>${esc(S.exchange)} · Marché</h2><span class="ex">${S.error?'Données indisponibles':'Sélectionnez un instrument.'}</span>`;return;}const change=x.change===null?'Variation non fournie':`${x.change>0?'+':''}${fmt(x.change)} %`;el.innerHTML=`<h2>${esc(x.name)}</h2><span class="ex">${esc(x.symbol)} · ${esc(x.exchange)} · ${esc(x.currency||'Devise non fournie')}</span><span class="price num">${x.price===null?'Cours indisponible':fmt(x.price)+' '+esc(x.currency)}</span><span>${change}</span>`;}
+function list(){if(!S.instruments.length){message(S.error||'Aucun instrument retourné par le fournisseur pour cette place.',!!S.error);return;}$('#side-body').innerHTML=S.instruments.map(x=>`<button class="instrument-row ${S.selected?.symbol===x.symbol?'on':''}" data-symbol="${encodeURIComponent(x.symbol)}"><span><b>${esc(x.symbol)}</b><small>${esc(x.name)}</small></span><span class="instrument-price">${x.price===null?'Cours indisponible':fmt(x.price)+' '+esc(x.currency)}<small>${x.change===null?'Variation non fournie':`${x.change>0?'+':''}${fmt(x.change)} %`}</small></span></button>`).join('');}
+function dock(){const el=$('#dock-body'),x=S.selected;if(S.tab==='sources'){const d=x?.updatedAt||S.exchangeMeta?.updated_at||S.historyMeta?.updated_at;el.innerHTML=`<p class="empty">Fournisseur : Mansa API. Dernière mise à jour communiquée : <b>${esc(dateLabel(d))}</b>. La fraîcheur dépend du flux et des métadonnées réellement retournées. Aucun cours n’est extrapolé.</p>`;return;}el.innerHTML=x?`<p class="empty">Instrument : <b>${esc(x.symbol)}</b>. Cours : <b>${x.price===null?'indisponible':fmt(x.price)+' '+esc(x.currency)}</b>. Volume : <b>${x.volume===null?'non communiqué':fmt(x.volume)}</b>. Aucun solde ni portefeuille local n’est inventé.</p>`:'<p class="empty">Les positions et ordres seront lus auprès du courtier partenaire. Aucun portefeuille fictif n’est créé.</p>';}
+async function history(){S.history=[];S.error=null;draw();if(!S.selected?.symbol)return;try{const p=await getCandles(S.exchange,S.selected.symbol,S.range),raw=Array.isArray(p?.data?.points)?p.data.points:Array.isArray(p?.points)?p.points:rows(p),cents=p?.data?.price_unit==='cents';S.history=raw.map(x=>{const v=x.close??x.c,n=v==null?NaN:Number(v);return{date:x.date||x.t||x.timestamp,close:Number.isFinite(n)?(cents?n/100:n):null};}).filter(x=>x.close!==null);S.historyMeta=p?.meta||{};}catch(e){S.error=e.message;}draw();dock();}
+async function exchange(ex){S.exchange=ex;S.selected=null;S.instruments=[];S.history=[];S.error=null;$$('[data-ex]').forEach(b=>b.classList.toggle('on',b.dataset.ex===S.exchange));head();draw();dock();message(`Récupération des instruments ${S.exchange} depuis Mansa API…`);try{const p=await getSymbols(S.exchange);S.instruments=rows(p).map(normalize).filter(x=>x.symbol);const asOf=stamp(p);S.instruments.forEach(x=>{x.updatedAt||=asOf;});S.exchangeMeta=p?.meta||{};if(!S.instruments.length){S.error='Le fournisseur n’a retourné aucun instrument pour cette place.';list();head();return;}S.selected=S.instruments[0];list();head();dock();await history();}catch(e){S.error=e.message;list();head();draw();dock();}}
+async function boot(){try{const p=await getExchanges();S.exchanges=rows(p);const available=S.exchanges.map(code);$$('[data-ex]').forEach(b=>{b.disabled=available.length>0&&!available.includes(b.dataset.ex);});await exchange(available.includes(S.exchange)?S.exchange:(available[0]||S.exchange));}catch(e){S.error=e.message;head();draw();dock();message(e.message,true);}}
 $('#exchange-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-ex]');if(b&&!b.disabled)exchange(b.dataset.ex);});
 $('#side-body').addEventListener('click',e=>{const b=e.target.closest('[data-symbol]');if(!b)return;S.selected=S.instruments.find(x=>x.symbol===decodeURIComponent(b.dataset.symbol))||null;list();head();dock();history();});
 $$('.dock .tabs button').forEach(b=>b.addEventListener('click',()=>{S.tab=b.dataset.d;$$('.dock .tabs button').forEach(x=>x.classList.toggle('on',x===b));dock();}));
 $$('#tf button').forEach(b=>b.addEventListener('click',()=>{S.range=({'1d':'1M','1w':'3M','1m':'1Y','1y':'5Y'})[b.dataset.tf];$$('#tf button').forEach(x=>x.classList.toggle('on',x===b));history();}));
 $('#fs').addEventListener('click',()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen());
-$('#q').addEventListener('input',async e=>{
-  const q=e.target.value.trim(),out=$('#results');if(q.length<2){out.style.display='none';out.innerHTML='';return;}
-  try{const found=rows(await searchSymbols(q));out.innerHTML=found.slice(0,12).map(x=>`<li data-symbol="${encodeURIComponent(symbol(x))}" data-exchange="${encodeURIComponent(String(x.exchange||x.exchange_code||S.exchange).toUpperCase())}"><span>${esc(symbol(x))} · ${esc(x.name||x.company_name||'')}</span><span>${esc(x.exchange||x.exchange_code||'')}</span></li>`).join('');out.style.display=found.length?'block':'none';}catch{out.style.display='none';}
-});
+let searchTimer;$('#q').addEventListener('input',e=>{clearTimeout(searchTimer);const q=e.target.value.trim(),out=$('#results');if(q.length<3){out.style.display='none';out.innerHTML='';return;}searchTimer=setTimeout(async()=>{try{const found=rows(await searchSymbols(q));out.innerHTML=found.slice(0,12).map(x=>`<li data-symbol="${encodeURIComponent(symbol(x))}" data-exchange="${encodeURIComponent(String(x.exchange||x.exchange_code||S.exchange).toUpperCase())}"><span>${esc(symbol(x))} · ${esc(x.name||x.company_name||'')}</span><span>${esc(x.exchange||x.exchange_code||'')}</span></li>`).join('');out.style.display=found.length?'block':'none';}catch{out.style.display='none';}},500);});
 $('#results').addEventListener('click',async e=>{const b=e.target.closest('[data-symbol]');if(!b)return;const ex=decodeURIComponent(b.dataset.exchange),sym=decodeURIComponent(b.dataset.symbol);$('#q').value='';$('#results').style.display='none';if(ex!==S.exchange)await exchange(ex);const found=S.instruments.find(x=>x.symbol===sym);if(found){S.selected=found;list();head();dock();history();}});
-$$('.tools [data-view]').forEach(b=>b.addEventListener('click',()=>{
-  $$('.tools [data-view]').forEach(x=>x.classList.toggle('on',x===b));
-  if(b.dataset.view==='about'){$('#head').innerHTML='<h2>Ukuaji</h2><span class="ex">Infrastructure d’information financière dédiée aux marchés africains.</span>';$('#chart-empty').hidden=false;$('#chart-empty').textContent='Ukuaji réunit données de marché, analyse et accès futur aux intermédiaires agréés. Les fonctions non connectées restent désactivées.';$('#dock-body').innerHTML='<p class="empty">Les données proviennent de Mansa API après configuration de la clé serveur. Les ordres et positions seront branchés au courtier partenaire choisi.</p>';}
-  else{head();draw();dock();}
-}));
+$$('.tools [data-view]').forEach(b=>b.addEventListener('click',()=>{$$('.tools [data-view]').forEach(x=>x.classList.toggle('on',x===b));if(b.dataset.view==='about'){$('#head').innerHTML='<h2>Ukuaji</h2><span class="ex">Infrastructure d’information financière dédiée aux marchés africains.</span>';$('#chart-empty').hidden=false;$('#chart-empty').textContent='Ukuaji réunit données de marché, analyse et accès futur aux intermédiaires agréés. Les fonctions non connectées restent désactivées.';$('#dock-body').innerHTML='<p class="empty">Les données proviennent de Mansa API après configuration de la clé serveur. Les ordres et positions seront branchés au courtier partenaire choisi.</p>';}else{head();draw();dock();}}));
 window.addEventListener('resize',draw);window.setTimeout(()=>$('#splash')?.classList.add('done'),900);boot();

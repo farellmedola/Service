@@ -4,5 +4,8 @@
   "private": true,
   "type": "module",
   "description": "Plateforme d'information et d'analyse des marchés financiers africains",
-  "scripts": { "dev": "vercel dev" }
+  "scripts": {
+    "dev": "vercel dev",
+    "test": "node --test"
+  }
 }

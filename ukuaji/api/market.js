@@ -3,23 +3,26 @@ const EXCHANGE_CODE = /^[A-Z0-9_-]{2,16}$/;
 const TICKER_CODE = /^[A-Z0-9._-]{1,24}$/;
 const QUOTE_FIELDS = ['ticker','symbol','code','name','company_name','company','exchange','exchange_code','currency','currency_code','price','last_price','current_price','close','last','currentPrice','change_pct','changePercentage','change','volume','updated_at','last_updated','as_of'];
 const EXCHANGE_FIELDS = ['code','exchange_code','name','country','country_code','currency','currency_code','updated_at','as_of','index_value','index','change_pct'];
-const INDEX_FIELDS = ['code','index_code','name','country','country_code','currency','currency_code','value','index_value','currentPrice','change_pct','changePercentage','updated_at','exchange','description'];
+const INDEX_FIELDS = ['code','index_code','index_name','market_id','name','country','country_code','currency','currency_code','value','index_value','index_change','index_change_pct','ytd_change','currentPrice','change_pct','changePercentage','updated_at','scraped_at','exchange','description'];
 const HISTORY_FIELDS = ['date','t','timestamp','open','high','low','close','volume'];
-const META_FIELDS = ['count','updated_at','as_of','data_freshness','freshness','delay_minutes','delayMinutes','stale','refresh_interval_seconds','first_date','last_date','order','exchange','currency','point_count'];
+const META_FIELDS = ['count','updated_at','as_of','scraped_at','data_freshness','freshness','delay_minutes','delayMinutes','stale','refresh_interval_seconds','first_date','last_date','order','exchange','currency','point_count','exchanges_included'];
 
 function pickFields(value, fields) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return Object.fromEntries(fields.filter(key => value[key] !== undefined).map(key => [key, value[key]]));
 }
 function findArray(value, keys) {
-  if (Array.isArray(value)) return value;
-  if (!value || typeof value !== 'object') return [];
-  for (const key of keys) if (Array.isArray(value[key])) return value[key];
-  for (const key of ['data','result']) {
-    const found = findArray(value[key], keys);
-    if (found.length) return found;
-  }
-  return [];
+  const records = [];
+  const walk = node => {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) { records.push(...node); return; }
+    for (const [key, child] of Object.entries(node)) {
+      if (keys.includes(key) && Array.isArray(child)) records.push(...child);
+      else if (child && typeof child === 'object') walk(child);
+    }
+  };
+  walk(value);
+  return records;
 }
 function shapePayload(body, action) {
   const fields = action === 'exchanges' ? EXCHANGE_FIELDS : action === 'indices' ? INDEX_FIELDS : action === 'history' ? HISTORY_FIELDS : QUOTE_FIELDS;
@@ -37,7 +40,7 @@ function shapePayload(body, action) {
   const records = findArray(body, keys);
   const data = records.map(row => {
     const item = pickFields(row, fields);
-    if (!item.updated_at) item.updated_at = item.last_updated || item.as_of || meta.updated_at || meta.as_of || null;
+    if (!item.updated_at) item.updated_at = item.last_updated || item.scraped_at || item.as_of || meta.updated_at || meta.scraped_at || meta.as_of || null;
     return item;
   });
   return { success: body?.success !== false, data, meta };
@@ -93,20 +96,6 @@ export default async function handler(req, res) {
       signal: AbortSignal.timeout(12000)
     });
     const body = await upstream.json().catch(() => null);
-    if (req.query.debug === '1') {
-      const shapes = [];
-      const walk = (value, path = 'root', depth = 0) => {
-        if (depth > 4 || value == null || typeof value !== 'object') return;
-        if (Array.isArray(value)) {
-          shapes.push({ path, type: 'array', length: value.length, firstItemKeys: value[0] && typeof value[0] === 'object' ? Object.keys(value[0]) : [] });
-          if (value[0] && typeof value[0] === 'object') walk(value[0], path + '[0]', depth + 1);
-          return;
-        }
-        for (const [key, child] of Object.entries(value)) walk(child, path + '.' + key, depth + 1);
-      };
-      walk(body);
-      return send(res, 200, { topLevelKeys: Object.keys(body || {}), shapes });
-    }
     if (!upstream.ok) {
       const status = upstream.status === 429 ? 429 : upstream.status === 401 || upstream.status === 403 ? 502 : upstream.status;
       return send(res, status, {

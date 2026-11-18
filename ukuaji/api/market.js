@@ -38,11 +38,17 @@ function shapePayload(body, action) {
     action === 'movers' ? ['movers','stocks','data','items','results','gainers','losers','top_gainers','top_losers'] :
     action === 'search' ? ['results','stocks','data','items'] : ['stocks','data','items'];
   const records = findArray(body, keys);
-  const data = records.map(row => {
+  let data = records.map(row => {
     const item = pickFields(row, fields);
     if (!item.updated_at) item.updated_at = item.last_updated || item.scraped_at || item.as_of || meta.updated_at || meta.scraped_at || meta.as_of || null;
     return item;
   });
+  if (action === 'movers') {
+    const change = item => Number(item.change_pct ?? item.changePercentage ?? item.change);
+    const gainers = data.filter(item => Number.isFinite(change(item)) && change(item) > 0).slice(0, 10);
+    const losers = data.filter(item => Number.isFinite(change(item)) && change(item) < 0).slice(0, 10);
+    data = [...gainers, ...losers];
+  }
   return { success: body?.success !== false, data, meta };
 }
 function send(res, status, body, cache = 'no-store') {

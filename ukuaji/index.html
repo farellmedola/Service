@@ -3,38 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07150f">
+<meta name="theme-color" content="#07110d">
 <meta name="robots" content="noindex,nofollow">
-<meta name="description" content="Ukuaji — plateforme d'information et d'analyse des marchés financiers africains.">
-<title>Ukuaji · Marchés africains</title>
-<link rel="icon" href="assets/logo.jpg">
+<meta name="description" content="Ukuaji — explorez les marchés financiers africains.">
+<title>Ukuaji — African Markets</title>
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/attribution.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<div id="splash"><img src="assets/logo.jpg" alt="Ukuaji"><h1>Ukuaji</h1><p>Les marchés africains, avec des données sourcées.</p></div>
+<div id="splash" aria-label="Ukuaji">
+  <img src="/assets/logo.jpg" alt="Logo Ukuaji" onerror="this.style.display='none'">
+  <span class="splash-word">ukuaji<span>.</span></span>
+  <p>Les marchés africains, en perspective.</p>
+</div>
 <div id="app">
   <header class="top">
-    <div class="brand"><img src="assets/logo.jpg" alt=""><b>Ukuaji</b></div>
-    <small class="global-attribution">Data by <a href="https://mansaapi.com" target="_blank" rel="noopener noreferrer">MansaAPI</a></small>
-    <div class="search"><input id="q" placeholder="Rechercher un titre ou une place…" autocomplete="off" aria-label="Rechercher"><ul id="results"></ul></div>
-    <span class="plan-note" title="L’historique OHLCV est inclus à partir du plan Mansa Pro">Historique OHLCV · Pro</span>
-    <button class="theme" id="fs" title="Plein écran">Plein écran</button>
+    <a class="brand" href="/" aria-label="Ukuaji — accueil">
+      <img src="/assets/logo.jpg" alt="Logo Ukuaji" onerror="this.style.display='none'">
+      <span>ukuaji<span>.</span></span>
+    </a>
+    <div class="search">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input id="q" placeholder="Rechercher une entreprise, un symbole…" autocomplete="off" aria-label="Rechercher une entreprise ou un symbole">
+      <ul id="results"></ul>
+    </div>
+    <button class="theme" id="fs" title="Plein écran" aria-label="Plein écran">⛶</button>
   </header>
-  <nav class="tools" aria-label="Navigation"><button class="on" data-view="markets">Marchés</button><button data-view="about">À propos</button></nav>
+  <nav class="tools" aria-label="Navigation principale">
+    <button class="on" data-view="markets"><span>◫</span> Marchés</button>
+    <button data-view="about"><span>↗</span> À propos</button>
+  </nav>
   <main class="stage">
-    <div class="head" id="head"><h2>Marchés africains</h2><span class="ex">Connexion aux données en cours…</span></div>
-    <div class="chartwrap"><canvas id="chart"></canvas><div id="tip"></div><div id="chart-empty" class="chart-empty">L’historique authentifié apparaîtra ici lorsqu’il sera disponible auprès du fournisseur.</div></div>
-    <section class="dock"><div class="tabs"><button class="on" data-d="overview">Vue d’ensemble</button><button data-d="indices">Indices</button><button data-d="movers">Variations</button><button data-d="sources">Sources & fraîcheur</button></div><div id="dock-body"></div></section>
+    <div class="head" id="head">
+      <div class="eyebrow">PAN-AFRICAN MARKETS</div>
+      <h2>Les marchés africains</h2>
+      <span class="ex">Explorez les principales places boursières du continent.</span>
+    </div>
+    <div class="chartwrap">
+      <div class="chart-heading"><span>APERÇU DU MARCHÉ</span><span class="chart-period">ÉVOLUTION</span></div>
+      <canvas id="chart"></canvas>
+      <div id="tip"></div>
+      <div id="chart-empty" class="chart-empty">Sélectionnez une entreprise pour afficher ses informations de marché.</div>
+    </div>
+    <section class="dock">
+      <div class="tabs">
+        <button class="on" data-d="overview">Vue d’ensemble</button>
+        <button data-d="indices">Indices</button>
+        <button data-d="movers">Variations</button>
+      </div>
+      <div id="dock-body"></div>
+    </section>
+    <footer class="site-footer"><span>Ukuaji — Investir dans la connaissance.</span><span class="data-credit">Données de marché : <a href="https://mansaapi.com" target="_blank" rel="noopener noreferrer">MansaAPI</a></span></footer>
   </main>
   <aside class="side">
-    <div class="tabs" id="exchange-tabs"><button class="on" data-ex="BRVM">BRVM</button><button data-ex="BVMAC">BVMAC</button><button data-ex="NGX">NGX</button><button data-ex="NSE">NSE</button><button data-ex="JSE">JSE</button><button data-ex="EGX">EGX</button><button data-ex="CSE">CSE</button></div>
-    <div id="side-body"><p class="empty">Chargement des places et des instruments…</p></div>
-    <section id="trade-info"><small class="attribution">Data by <a href="https://mansaapi.com" target="_blank" rel="noopener noreferrer">MansaAPI</a></small><strong>Passage d’ordres désactivé</strong><p>Ukuaji affichera les ordres uniquement après connexion à un courtier partenaire agréé. Aucun ordre n’est envoyé ni simulé ici. Les cours sont informatifs et peuvent être retardés ou indisponibles.</p></section>
+    <div class="side-heading"><span>PLACES BOURSIÈRES</span><span class="live-mark"></span></div>
+    <div class="tabs exchange-tabs" id="exchange-tabs">
+      <button class="on" data-ex="BRVM">BRVM</button><button data-ex="BVMAC">BVMAC</button>
+      <button data-ex="NGX">NGX</button><button data-ex="NSE">NSE</button>
+      <button data-ex="JSE">JSE</button><button data-ex="EGX">EGX</button><button data-ex="CSE">CSE</button>
+    </div>
+    <div id="side-body"><p class="empty">Chargement des marchés…</p></div>
+    <section id="trade-info">
+      <span class="trade-kicker">UKUAJI INSIGHTS</span>
+      <strong>Comprendre les marchés. Décider avec clarté.</strong>
+      <p>Une vue d’ensemble des entreprises et des tendances boursières africaines.</p>
+    </section>
   </aside>
 </div>
-<script type="module" src="js/app.js"></script>
+<script type="module" src="/js/app.js"></script>
 </body>
 </html>

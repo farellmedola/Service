@@ -12,7 +12,7 @@ Cette version retire les cours, chandeliers, volumes, actualités, positions et 
 
 ## Configuration Vercel
 1. Définir le Root Directory du projet sur `ukuaji`.
-2. Ajouter `MANSA_API_KEY` et `DATABASE_URL` dans Project Settings → Environment Variables (Preview uniquement pour les tests).
+2. Ajouter `MANSA_API_KEY` et `DATABASE_READONLY_URL` dans Project Settings → Environment Variables (Preview uniquement pour les tests). Utiliser le rôle Neon `ukuaji_preview_ro` pour les lectures ; ne pas utiliser le rôle propriétaire dans l’application.
 3. Laisser `MANSA_PUBLIC_DISPLAY_AUTHORIZED=false` tant que les droits applicables n’ont pas été clarifiés.
 4. Laisser `MANSA_HISTORY_ENABLED=false` sur l’offre gratuite : l’historique OHLCV est réservé au plan Pro ou supérieur.
 5. Passer les verrous à `true` uniquement après validation des droits et du niveau d’abonnement, puis redéployer.
@@ -37,7 +37,7 @@ Le backend refuse les requêtes non-GET, valide les paramètres, applique un dé
 ## Neon
 Le projet Neon `ukuaji` possède déjà les tables `venues`, `data_sources`, `source_reviews`, `feeds`, `instruments`, `market_observations`, `ingestion_jobs`, `ingestion_runs`, `ingestion_dead_letters` et `audit_events`. Le schéma contient notamment un contrôle explicite des droits de collecte, stockage, affichage et redistribution. Les 12 places déjà enregistrées sont encore au statut `DISCOVERED`; les sources, flux, instruments et observations ne sont pas encore initialisés.
 
-Mansa API est enregistré comme source inactive avec statut `PUBLIC_TERMS_REVIEW`. Les secrets `MANSA_API_KEY` et `DATABASE_URL` sont configurés côté serveur Vercel en Preview uniquement ; la connexion PostgreSQL doit encore être vérifiée par `/api/health`. Les droits de collecte, stockage, affichage et redistribution sont tous désactivés dans le registre de conformité. Aucune migration ni ingestion n’est lancée dans cette étape.
+Mansa API est enregistré comme source inactive avec statut `PUBLIC_TERMS_REVIEW`. Les secrets `MANSA_API_KEY` et `DATABASE_READONLY_URL` sont configurés côté serveur Vercel en Preview uniquement ; le rôle `ukuaji_preview_ro` dispose de SELECT sans INSERT. La connectivité est vérifiée par `/api/health`. Les droits de collecte, stockage, affichage et redistribution sont tous désactivés dans le registre de conformité. Aucune migration ni ingestion n’est lancée dans cette étape.
 
 ## Tests
 `npm test` exécute les tests de la fonction API : verrou de diffusion, clé serveur obligatoire, plan Pro pour l’historique, méthode HTTP, validation des paramètres, quota fournisseur et filtrage des champs exposés.

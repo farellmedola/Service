@@ -23,3 +23,5 @@
 .global-attribution a{color:var(--savanna);text-decoration:none}
 .global-attribution a:hover{text-decoration:underline}
 @media(max-width:600px){.global-attribution{font-size:10px}}
+
+.freshness-status{display:block;margin-top:5px;color:var(--dim);font-size:11px;line-height:1.4}

@@ -12,3 +12,92 @@
 @media(max-width:900px){body{overflow:auto}.workspace{grid-template-columns:250px minmax(0,1fr);overflow:visible}.rightbar{grid-column:1/3;display:grid;grid-template-columns:1fr 1fr;gap:0 18px;border-left:0;border-top:1px solid var(--line);padding:0 18px}.right-heading{grid-column:1/3}.detail-empty,.detail-quote,.detail-stats{grid-column:1}.right-section{grid-column:2;grid-row:2/5}.right-note{grid-column:1/3;margin:10px 0}.main-panel{min-height:850px}.leftbar{min-height:850px}.detail-hidden .workspace{grid-template-columns:250px minmax(0,1fr)}}
 @media(max-width:620px){#app{height:auto;min-height:100vh}.topbar{height:58px;flex-basis:58px;padding:0 12px;gap:12px}.brand{min-width:auto}.brand-mark{width:29px;height:29px}.brand-name{font-size:20px}.market-switch{display:none}.searchbox{width:auto;flex:1;height:34px}.searchbox kbd,.top-actions .session-label,.top-actions .avatar{display:none}.top-actions{gap:7px}.workspace{display:flex;flex-direction:column;overflow:visible}.leftbar{display:flex;flex-direction:column;min-height:0;border-right:0;border-bottom:1px solid var(--line)}.rail{display:none}.watchlist{padding:0 12px}.panel-title{height:39px}.watch-tabs{padding-bottom:8px}.watch-caption{padding:9px 3px 5px}#side-body{max-height:205px;display:grid;grid-template-columns:1fr 1fr;gap:0 9px}.instrument-row{padding:8px 3px}.instrument-row .company{max-width:90px}.watch-foot{height:28px;flex-basis:28px}.main-panel{min-height:750px;padding:0 12px}.instrument-header{min-height:91px;padding:13px 1px}.instrument-title h1{font-size:21px}.instrument-title p{font-size:10px}.market-session{font-size:8px}.chart-card{min-height:340px;flex:none}.chart-toolbar-left{width:100%;flex-wrap:wrap}.chart-toolbar-right{width:100%;justify-content:space-between}.chart-market{max-width:120px}.chart-legend{gap:8px;font-size:7px}.chart-stage{min-height:245px}.bottom-panel{height:210px;flex-basis:210px}.bottom-tabs{gap:14px}.bottom-tabs button{font-size:9px}.bottom-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.main-footer{font-size:7px}.rightbar{display:flex;padding:0 12px}.right-heading{height:40px;flex-basis:40px}.detail-empty{min-height:140px}.right-section{padding-bottom:12px}.right-note{margin:10px 0}.detail-hidden .rightbar{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+/* UKUAJI / MELUNE DESIGN SYSTEM — cinematic restraint for a trading workspace */
+:root{
+ --bg:#080b08;--panel:#0c110d;--panel2:#111811;--panel3:#18221a;
+ --line:#263328;--line2:#39483b;--text:#f0eee5;--muted:#8c9588;--soft:#c2c8b8;
+ --green:#b8d39a;--green2:#83ad68;--red:#c87860;--gold:#c79b69;
+ --font:"DM Sans",sans-serif;--display:"Manrope",sans-serif;--mono:"DM Mono",monospace;
+ color-scheme:dark;
+}
+html,body,#app{background:var(--bg)}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% -12%,#526b3826,transparent 44%),radial-gradient(ellipse at 95% 85%,#8e4a2b0c,transparent 38%)}
+.topbar{background:#090d09ed;border-color:#29352a;backdrop-filter:blur(18px);height:70px;flex-basis:70px;padding-inline:26px;gap:26px}
+.brand{min-width:190px;gap:12px}
+.brand-mark{width:46px;height:42px;padding:2px;background:#f4f0e7;border:1px solid #a7a08a55;border-radius:3px;box-shadow:0 8px 28px #0008}
+.brand-mark img{object-fit:contain;max-width:100%;max-height:100%}
+.brand-name{font-size:24px;letter-spacing:-.09em;color:#f1eee4}
+.brand-name span{color:#a7bf85}
+.market-switch{border-color:#344332;background:#111811;color:#c1cbb8}
+.market-pulse,.live-dot,.session-dot{background:#9bb879;box-shadow:0 0 0 4px #9bb87917}
+.searchbox{border-color:#2b392c;background:#0d130e;border-radius:3px;height:39px}
+.searchbox:focus-within{border-color:#91aa70;background:#101810;box-shadow:0 0 0 3px #9bb87913}
+.workspace{grid-template-columns:292px minmax(500px,1fr) 300px}
+.leftbar,.rightbar{background:#0b100b;border-color:#263328}
+.rail{border-color:#263328}
+.rail-button:hover,.rail-button.active{color:#d0d9b7;background:#1a281b}
+.watch-tabs button.on{border-color:#596e49;background:#1a271a;color:#c3d6a5}
+.instrument-row{border-color:#202c22;padding-block:12px}
+.instrument-row:hover,.instrument-row.on{background:linear-gradient(90deg,#1c2b1d,#111911);box-shadow:inset 2px 0 #9eb87b}
+.instrument-row .ticker{color:#e8eadf}
+.instrument-price{color:#e3e5d9}
+.positive{color:#9fca80!important}.negative{color:#d58a70!important}
+.main-panel{padding-inline:22px;background:radial-gradient(ellipse at 52% 0%,#667d4420,transparent 42%),#090d09}
+.instrument-header{min-height:118px;border-color:#283429}
+.eyebrow{color:#a6b58f}
+.eyebrow i{background:#a8c384}
+.instrument-title h1{font-weight:600;letter-spacing:-.06em}
+.market-session{color:#a0aa95}
+.chart-card{border:1px solid #29372a;border-radius:4px;margin-top:15px;background:linear-gradient(155deg,#0f160f,#0b100c 65%);box-shadow:0 18px 60px #0003;overflow:hidden}
+.chart-toolbar{padding:0 13px;border-color:#263328}
+.chart-tool:hover,.chart-tool.active{color:#d0ddaF;background:#1a291b}
+.range-buttons button:hover,.range-buttons button.on{color:#e0e8d4;background:#273627}
+.chart-legend{padding-inline:14px;color:#879382}
+.chart-legend b{color:#e1e4d8}
+.chart-stage{margin:0 10px 8px;border:1px solid #202b21;border-radius:2px;background-image:linear-gradient(#29362a44 1px,transparent 1px),linear-gradient(90deg,#29362a44 1px,transparent 1px);background-size:100% 20%,10% 100%}
+.chart-empty{background:radial-gradient(ellipse at center,#18251a88,transparent 55%)}
+.empty-glyph{color:#a7bd83}
+.chart-empty strong{color:#e3e7d9}
+.chart-empty p{color:#929b8d}
+.chart-tip{background:#182219;border-color:#52644a}
+.chart-footer{padding-inline:13px;color:#899382}
+.bottom-panel{margin-top:13px}
+.bottom-tabs{border-color:#29352a}
+.bottom-tabs button.on:after{background:#a8c384}
+.bottom-tabs button:hover,.bottom-tabs button.on{color:#e6e9dd}
+.market-card{border-color:#2c3b2c;background:linear-gradient(145deg,#172117,#0e150f);border-radius:3px}
+.market-card:hover{border-color:#839b65;box-shadow:0 8px 28px #0004}
+.market-card b{color:#dce5d2}.market-card strong{color:#eef0e5}
+.right-heading{border-color:#29352a;color:#bdc5b4}
+.detail-quote,.detail-stats{border-color:#29352a}
+.detail-price{color:#e9ecdf}
+.stat{border-color:#202b21}.stat b{color:#dce2d5}
+.right-section .panel-title{color:#a9b69c}
+.mini-index{border-color:#202b21}
+.right-note{background:radial-gradient(ellipse at 80% 10%,#8b56311a,transparent 65%);border-color:#29352a}
+.main-footer{color:#7f897b}
+.attribution{color:#778272}.attribution a{color:#b5c49e;text-decoration-color:#657853}
+#splash{background:radial-gradient(ellipse at 50% 45%,#273b25 0%,#0b100b 48%,#060906 100%)}
+.splash-orbit{border-color:#566b45;box-shadow:0 0 60px #78934b1a}
+.splash-logo{width:100px;height:100px;object-fit:contain;background:#f4f0e7;padding:6px;border-radius:4px}
+.splash-word span{color:#a8c384}
+@media(max-width:1180px){.workspace{grid-template-columns:250px minmax(400px,1fr) 260px}.topbar{gap:15px;padding-inline:16px}.brand{min-width:155px}}
+@media(max-width:900px){.workspace{grid-template-columns:230px minmax(360px,1fr)}.rightbar{display:none}}
+@media(max-width:620px){
+ .topbar{height:58px;flex-basis:58px;padding:0 12px;gap:10px}
+ .brand{min-width:auto}.brand-mark{width:34px;height:34px}.brand-name{font-size:20px}
+ .market-switch{display:none}.searchbox{width:auto;flex:1}.top-actions .session-label,.top-actions .avatar{display:none}
+ .workspace{display:flex;flex-direction:column;overflow:auto}
+ .leftbar{display:flex;flex-direction:column;border:0;border-bottom:1px solid var(--line)}
+ .rail{display:none}.watchlist{padding:0 12px}#side-body{max-height:190px;display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+ .instrument-row{padding:8px 3px}.main-panel{min-height:760px;padding:0 11px}
+ .instrument-header{min-height:92px}.chart-card{min-height:350px;flex:none;margin-top:10px}
+ .chart-toolbar{align-items:flex-start;flex-direction:column;padding:9px;gap:6px}
+ .chart-toolbar-left,.chart-toolbar-right{width:100%;flex-wrap:wrap;justify-content:space-between}
+ .chart-stage{min-height:245px}.bottom-panel{height:220px;flex-basis:220px}
+ .bottom-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.main-footer{font-size:7px}
+ .rightbar{display:flex}.main-footer{gap:10px}
+}
+@media(prefers-reduced-motion:reduce){.market-pulse,.live-dot,.session-dot,.splash-orbit{animation:none!important}}

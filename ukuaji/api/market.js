@@ -93,6 +93,20 @@ export default async function handler(req, res) {
       signal: AbortSignal.timeout(12000)
     });
     const body = await upstream.json().catch(() => null);
+    if (req.query.debug === '1') {
+      const shapes = [];
+      const walk = (value, path = 'root', depth = 0) => {
+        if (depth > 4 || value == null || typeof value !== 'object') return;
+        if (Array.isArray(value)) {
+          shapes.push({ path, type: 'array', length: value.length, firstItemKeys: value[0] && typeof value[0] === 'object' ? Object.keys(value[0]) : [] });
+          if (value[0] && typeof value[0] === 'object') walk(value[0], path + '[0]', depth + 1);
+          return;
+        }
+        for (const [key, child] of Object.entries(value)) walk(child, path + '.' + key, depth + 1);
+      };
+      walk(body);
+      return send(res, 200, { topLevelKeys: Object.keys(body || {}), shapes });
+    }
     if (!upstream.ok) {
       const status = upstream.status === 429 ? 429 : upstream.status === 401 || upstream.status === 403 ? 502 : upstream.status;
       return send(res, status, {

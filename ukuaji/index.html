@@ -18,19 +18,19 @@
   <header class="top">
     <div class="brand"><img src="assets/logo.jpg" alt=""><b>Ukuaji</b></div>
     <div class="search"><input id="q" placeholder="Rechercher un titre ou une place…" autocomplete="off" aria-label="Rechercher"><ul id="results"></ul></div>
-    <div class="seg" id="tf" role="group" aria-label="Période"><button data-tf="1d" class="on">1 j</button><button data-tf="1w">1 sem.</button><button data-tf="1m">1 mois</button><button data-tf="1y">1 an</button></div>
+    <span class="plan-note" title="L’historique OHLCV est inclus à partir du plan Mansa Pro">Historique OHLCV · Pro</span>
     <button class="theme" id="fs" title="Plein écran">Plein écran</button>
   </header>
   <nav class="tools" aria-label="Navigation"><button class="on" data-view="markets">Marchés</button><button data-view="about">À propos</button></nav>
   <main class="stage">
     <div class="head" id="head"><h2>Marchés africains</h2><span class="ex">Connexion aux données en cours…</span></div>
     <div class="chartwrap"><canvas id="chart"></canvas><div id="tip"></div><div id="chart-empty" class="chart-empty">L’historique authentifié apparaîtra ici lorsqu’il sera disponible auprès du fournisseur.</div></div>
-    <section class="dock"><div class="tabs"><button class="on" data-d="overview">Vue d’ensemble</button><button data-d="sources">Sources & fraîcheur</button></div><div id="dock-body"></div></section>
+    <section class="dock"><div class="tabs"><button class="on" data-d="overview">Vue d’ensemble</button><button data-d="indices">Indices</button><button data-d="movers">Variations</button><button data-d="sources">Sources & fraîcheur</button></div><div id="dock-body"></div></section>
   </main>
   <aside class="side">
     <div class="tabs" id="exchange-tabs"><button class="on" data-ex="BRVM">BRVM</button><button data-ex="BVMAC">BVMAC</button><button data-ex="NGX">NGX</button><button data-ex="NSE">NSE</button><button data-ex="JSE">JSE</button><button data-ex="EGX">EGX</button><button data-ex="CSE">CSE</button></div>
     <div id="side-body"><p class="empty">Chargement des places et des instruments…</p></div>
-    <section id="trade-info"><small class="attribution">Données de marché par <a href="https://mansaapi.com" target="_blank" rel="noopener noreferrer">Mansa API</a></small><strong>Passage d’ordres désactivé</strong><p>Ukuaji affichera les ordres uniquement après connexion à un courtier partenaire agréé. Aucun ordre n’est envoyé ni simulé ici.</p></section>
+    <section id="trade-info"><small class="attribution">Data by <a href="https://mansaapi.com" target="_blank" rel="noopener noreferrer">MansaAPI</a></small><strong>Passage d’ordres désactivé</strong><p>Ukuaji affichera les ordres uniquement après connexion à un courtier partenaire agréé. Aucun ordre n’est envoyé ni simulé ici. Les cours sont informatifs et peuvent être retardés ou indisponibles.</p></section>
   </aside>
 </div>
 <script type="module" src="js/app.js"></script>

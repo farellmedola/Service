@@ -6,7 +6,7 @@ const request = async (params) => {
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, value);
   });
-  const response = await fetch(url, { headers: { Accept: 'application/json' }, cache: 'no-store' });
+  const response = await fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'Ukuaji-Web' }, cache: 'no-store' });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(payload.error || `Erreur API (${response.status})`);

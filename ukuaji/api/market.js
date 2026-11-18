@@ -60,6 +60,7 @@ function send(res, status, body, cache = 'no-store') {
 }
 export default async function handler(req, res) {
   if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return send(res, 405, { error: 'Méthode non autorisée.', code: 'METHOD_NOT_ALLOWED' }); }
+  if (req.headers?.['x-requested-with'] !== 'Ukuaji-Web') return send(res, 403, { error: 'Cette route est réservée à l’interface Ukuaji.', code: 'FIRST_PARTY_ONLY' });
   if (process.env.MANSA_PUBLIC_DISPLAY_AUTHORIZED !== 'true') return send(res, 403, {
     error: 'L’affichage des données Mansa est désactivé tant que les droits applicables ne sont pas validés.',
     code: 'MARKET_DISPLAY_NOT_AUTHORIZED'

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07150f">
+<meta name="description" content="Ukuaji — plateforme d'information et d'analyse des marchés financiers africains.">
+<title>Ukuaji · Marchés africains</title>
+<link rel="icon" href="assets/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="splash"><img src="assets/logo.jpg" alt="Ukuaji"><h1>Ukuaji</h1><p>Les marchés africains, avec des données sourcées.</p></div>
+<div id="app">
+  <header class="top">
+    <div class="brand"><img src="assets/logo.jpg" alt=""><b>Ukuaji</b></div>
+    <div class="search"><input id="q" placeholder="Rechercher un titre ou une place…" autocomplete="off" aria-label="Rechercher"><ul id="results"></ul></div>
+    <div class="seg" id="tf" role="group" aria-label="Période"><button data-tf="1d" class="on">1 j</button><button data-tf="1w">1 sem.</button><button data-tf="1m">1 mois</button><button data-tf="1y">1 an</button></div>
+    <button class="theme" id="fs" title="Plein écran">Plein écran</button>
+  </header>
+  <nav class="tools" aria-label="Navigation"><button class="on" data-view="markets">Marchés</button><button data-view="about">À propos</button></nav>
+  <main class="stage">
+    <div class="head" id="head"><h2>Marchés africains</h2><span class="ex">Connexion aux données en cours…</span></div>
+    <div class="chartwrap"><canvas id="chart"></canvas><div id="tip"></div><div id="chart-empty" class="chart-empty">L’historique authentifié apparaîtra ici lorsqu’il sera disponible auprès du fournisseur.</div></div>
+    <section class="dock"><div class="tabs"><button class="on" data-d="overview">Vue d’ensemble</button><button data-d="sources">Sources & fraîcheur</button></div><div id="dock-body"></div></section>
+  </main>
+  <aside class="side">
+    <div class="tabs" id="exchange-tabs"><button class="on" data-ex="BRVM">BRVM</button><button data-ex="BVMAC">BVMAC</button><button data-ex="NGX">NGX</button><button data-ex="NSE">NSE</button><button data-ex="JSE">JSE</button><button data-ex="EGX">EGX</button><button data-ex="CSE">CSE</button></div>
+    <div id="side-body"><p class="empty">Chargement des places et des instruments…</p></div>
+    <section id="trade-info"><strong>Passage d’ordres désactivé</strong><p>Ukuaji affichera les ordres uniquement après connexion à un courtier partenaire agréé. Aucun ordre n’est envoyé ni simulé ici.</p></section>
+  </aside>
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

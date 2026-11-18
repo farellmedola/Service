@@ -19,3 +19,6 @@ export const getExchanges = () => request({ action: 'exchanges' });
 export const getSymbols = (exchange) => request({ action: 'stocks', exchange, limit: 200 });
 export const getCandles = (exchange, symbol, range = '1Y') => request({ action: 'history', exchange, symbol, range });
 export const searchSymbols = (query) => request({ action: 'search', q: query, limit: 20 });
+
+export const getIndices = () => request({ action: 'indices' });
+export const getMovers = () => request({ action: 'movers' });

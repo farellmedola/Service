@@ -35,7 +35,7 @@ function shapePayload(body, action) {
   }
   const keys = action === 'exchanges' ? ['exchanges','data','items'] :
     action === 'indices' ? ['indices','data','items','results'] :
-    action === 'movers' ? ['movers','stocks','data','items','results'] :
+    action === 'movers' ? ['movers','stocks','data','items','results','gainers','losers','top_gainers','top_losers'] :
     action === 'search' ? ['results','stocks','data','items'] : ['stocks','data','items'];
   const records = findArray(body, keys);
   const data = records.map(row => {

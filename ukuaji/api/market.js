@@ -1,10 +1,11 @@
 const BASE_URL = 'https://mansaapi.com/api/v1';
-const EXCHANGE_CODE = /^[A-Z0-9_-]{2,12}$/;
+const EXCHANGE_CODE = /^[A-Z0-9_-]{2,16}$/;
 const TICKER_CODE = /^[A-Z0-9._-]{1,24}$/;
-const QUOTE_FIELDS = ['ticker','symbol','code','name','company_name','company','exchange','exchange_code','currency','currency_code','price','last_price','current_price','close','last','currentPrice','change_pct','changePercentage','volume','updated_at','last_updated','as_of'];
+const QUOTE_FIELDS = ['ticker','symbol','code','name','company_name','company','exchange','exchange_code','currency','currency_code','price','last_price','current_price','close','last','currentPrice','change_pct','changePercentage','change','volume','updated_at','last_updated','as_of'];
 const EXCHANGE_FIELDS = ['code','exchange_code','name','country','country_code','currency','currency_code','updated_at','as_of','index_value','index','change_pct'];
+const INDEX_FIELDS = ['code','index_code','name','country','country_code','currency','currency_code','value','index_value','currentPrice','change_pct','changePercentage','updated_at','exchange','description'];
 const HISTORY_FIELDS = ['date','t','timestamp','open','high','low','close','volume'];
-const META_FIELDS = ['count','updated_at','as_of','data_freshness','freshness','delay_minutes','delayMinutes','stale','refresh_interval_seconds','first_date','last_date','order','exchange'];
+const META_FIELDS = ['count','updated_at','as_of','data_freshness','freshness','delay_minutes','delayMinutes','stale','refresh_interval_seconds','first_date','last_date','order','exchange','currency','point_count'];
 
 function pickFields(value, fields) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
@@ -14,11 +15,14 @@ function findArray(value, keys) {
   if (Array.isArray(value)) return value;
   if (!value || typeof value !== 'object') return [];
   for (const key of keys) if (Array.isArray(value[key])) return value[key];
-  for (const key of ['data','result']) { const found = findArray(value[key], keys); if (found.length) return found; }
+  for (const key of ['data','result']) {
+    const found = findArray(value[key], keys);
+    if (found.length) return found;
+  }
   return [];
 }
 function shapePayload(body, action) {
-  const fields = action === 'exchanges' ? EXCHANGE_FIELDS : action === 'history' ? HISTORY_FIELDS : QUOTE_FIELDS;
+  const fields = action === 'exchanges' ? EXCHANGE_FIELDS : action === 'indices' ? INDEX_FIELDS : action === 'history' ? HISTORY_FIELDS : QUOTE_FIELDS;
   const meta = pickFields(body?.meta, META_FIELDS);
   for (const key of ['updated_at','as_of','data_freshness']) if (body?.[key] !== undefined && meta[key] === undefined) meta[key] = body[key];
   if (action === 'history') {
@@ -26,7 +30,11 @@ function shapePayload(body, action) {
     const points = findArray(data, ['points','history','data']);
     return { success: body?.success !== false, data: { price_unit: data?.price_unit || body?.price_unit || 'major', points: points.map(row => pickFields(row, HISTORY_FIELDS)) }, meta };
   }
-  const records = findArray(body, action === 'exchanges' ? ['exchanges','data','items'] : action === 'search' ? ['results','stocks','data','items'] : ['stocks','data','items']);
+  const keys = action === 'exchanges' ? ['exchanges','data','items'] :
+    action === 'indices' ? ['indices','data','items','results'] :
+    action === 'movers' ? ['movers','stocks','data','items','results'] :
+    action === 'search' ? ['results','stocks','data','items'] : ['stocks','data','items'];
+  const records = findArray(body, keys);
   const data = records.map(row => {
     const item = pickFields(row, fields);
     if (!item.updated_at) item.updated_at = item.last_updated || item.as_of || meta.updated_at || meta.as_of || null;
@@ -38,12 +46,13 @@ function send(res, status, body, cache = 'no-store') {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', cache);
   res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.status(status).json(body);
 }
 export default async function handler(req, res) {
-  if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return send(res, 405, { error: 'Méthode non autorisée.' }); }
+  if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return send(res, 405, { error: 'Méthode non autorisée.', code: 'METHOD_NOT_ALLOWED' }); }
   if (process.env.MANSA_PUBLIC_DISPLAY_AUTHORIZED !== 'true') return send(res, 403, {
-    error: 'L’affichage public des données Mansa est bloqué tant que les droits de diffusion ne sont pas confirmés.',
+    error: 'L’affichage des données Mansa est désactivé tant que les droits applicables ne sont pas validés.',
     code: 'MARKET_DISPLAY_NOT_AUTHORIZED'
   });
   const apiKey = process.env.MANSA_API_KEY;
@@ -53,28 +62,30 @@ export default async function handler(req, res) {
   });
   const { action } = req.query;
   if (action === 'history' && process.env.MANSA_HISTORY_ENABLED !== 'true') return send(res, 403, {
-    error: 'L’historique OHLCV Mansa nécessite une formule Pro ou supérieure.',
+    error: 'L’historique OHLCV quotidien nécessite le plan Mansa Pro ou supérieur.',
     code: 'MARKET_HISTORY_TIER_REQUIRED'
   });
   let path;
   if (action === 'exchanges') path = '/markets/exchanges';
+  else if (action === 'indices') path = '/markets/indices';
+  else if (action === 'movers') path = '/markets/movers/pan-african?limit=20';
   else if (action === 'stocks') {
     const exchange = String(req.query.exchange || '').toUpperCase();
-    if (!EXCHANGE_CODE.test(exchange)) return send(res, 400, { error: 'Code de place invalide.' });
+    if (!EXCHANGE_CODE.test(exchange)) return send(res, 400, { error: 'Code de place invalide.', code: 'INVALID_EXCHANGE' });
     const limit = Math.min(200, Math.max(1, Number.parseInt(req.query.limit || '100', 10) || 100));
     path = `/markets/exchanges/${encodeURIComponent(exchange)}/stocks?limit=${limit}`;
   } else if (action === 'history') {
     const exchange = String(req.query.exchange || '').toUpperCase();
     const ticker = String(req.query.symbol || '').toUpperCase();
     const range = String(req.query.range || '1Y').toUpperCase();
-    if (!EXCHANGE_CODE.test(exchange) || !TICKER_CODE.test(ticker)) return send(res, 400, { error: 'Place ou symbole invalide.' });
-    if (!['1M','3M','6M','1Y','2Y','5Y','10Y','ALL'].includes(range)) return send(res, 400, { error: 'Période invalide.' });
+    if (!EXCHANGE_CODE.test(exchange) || !TICKER_CODE.test(ticker)) return send(res, 400, { error: 'Place ou symbole invalide.', code: 'INVALID_INSTRUMENT' });
+    if (!['1M','3M','6M','1Y','2Y','5Y','10Y','ALL'].includes(range)) return send(res, 400, { error: 'Période invalide.', code: 'INVALID_RANGE' });
     path = `/markets/exchanges/${encodeURIComponent(exchange)}/stocks/${encodeURIComponent(ticker)}/history?range=${range}`;
   } else if (action === 'search') {
     const q = String(req.query.q || '').trim().slice(0, 80);
-    if (q.length < 1) return send(res, 400, { error: 'Saisissez un symbole ou un nom.' });
-    path = `/markets/search?q=${encodeURIComponent(q)}&limit=20`;
-  } else return send(res, 400, { error: 'Action API inconnue.' });
+    if (q.length < 1) return send(res, 400, { error: 'Saisissez un symbole ou un nom.', code: 'EMPTY_QUERY' });
+    path = `/markets/search?q=${encodeURIComponent(q)}&limit=50`;
+  } else return send(res, 400, { error: 'Action API inconnue.', code: 'UNKNOWN_ACTION' });
   try {
     const upstream = await fetch(`${BASE_URL}${path}`, {
       method: 'GET',
@@ -89,7 +100,7 @@ export default async function handler(req, res) {
         code: 'UPSTREAM_MARKET_ERROR', providerStatus: upstream.status
       });
     }
-    return send(res, 200, shapePayload(body, action), 'public, s-maxage=600, stale-while-revalidate=300');
+    return send(res, 200, shapePayload(body, action), 'public, s-maxage=1800, stale-while-revalidate=300');
   } catch (error) {
     return send(res, 502, {
       error: error.name === 'TimeoutError' ? 'Le fournisseur ne répond pas dans le délai prévu.' : 'Impossible de joindre le fournisseur de données.',

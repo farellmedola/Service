@@ -29,7 +29,7 @@ La clé ne doit jamais être ajoutée au JavaScript client, au dépôt Git ou à
 - `GET /api/market?action=search&q=Sonatel`
 - `GET /api/health` (contrôle de disponibilité PostgreSQL, sans lecture ni écriture métier)
 
-Le backend refuse les requêtes non-GET, valide les paramètres, applique un délai maximal, relaie les erreurs du fournisseur et met en cache les réponses réussies côté edge. Il ne fabrique aucune donnée de secours et ne relaie que les champs nécessaires à l’affichage.
+Le backend refuse les requêtes non-GET et les appels sans en-tête first-party de l’interface, valide les paramètres, applique un délai maximal, relaie les erreurs du fournisseur et met en cache les réponses réussies côté edge pendant 30 minutes. Il ne fabrique aucune donnée de secours et ne relaie que les champs nécessaires à l’affichage. Cette route n’est pas une API de données destinée à des tiers et ne fournit aucun export en masse.
 
 ## Droits et limites du fournisseur
 - La page officielle de licence autorise l’affichage dans une application ou un site avec attribution sur Free et un cache maximal de 24 h. La page de prix décrit toutefois Free comme une offre d’exploration et de side projects, tandis que Starter vise les produits fintech. Ukuaji reste donc limité à un Preview d’évaluation ; le déploiement commercial Production attend le choix/accord de plan.
@@ -41,10 +41,10 @@ Le backend refuse les requêtes non-GET, valide les paramètres, applique un dé
 ## Neon
 Le projet Neon `ukuaji` possède déjà les tables `venues`, `data_sources`, `source_reviews`, `feeds`, `instruments`, `market_observations`, `ingestion_jobs`, `ingestion_runs`, `ingestion_dead_letters` et `audit_events`. Le schéma contient notamment un contrôle explicite des droits de collecte, stockage, affichage et redistribution. Les 12 places déjà enregistrées sont encore au statut `DISCOVERED`; les sources, flux, instruments et observations ne sont pas encore initialisés.
 
-Mansa API est enregistré comme source inactive pour l’ingestion, avec un statut `DISPLAY_ONLY` limité au Preview et une échéance de réexamen à 30 jours. Les secrets `MANSA_API_KEY` et `DATABASE_READONLY_URL` sont configurés côté serveur Vercel en Preview uniquement ; le rôle `ukuaji_preview_ro` dispose de SELECT sans INSERT. La connectivité est vérifiée par `/api/health`. Les droits de collecte, stockage et redistribution restent désactivés dans le registre de conformité. Aucune observation de marché Mansa n’est persistée dans Neon : les réponses sont servies par cache Vercel dans la fenêtre autorisée. La variable historique `DATABASE_URL` (compte propriétaire) est inutilisée et doit être supprimée manuellement des variables Preview.
+Mansa API est enregistré comme source inactive pour l’ingestion, avec un statut `DISPLAY_ONLY` limité au Preview et une échéance de réexamen à 30 jours. Les secrets `MANSA_API_KEY` et `DATABASE_READONLY_URL` sont configurés côté serveur Vercel en Preview uniquement ; le rôle `ukuaji_preview_ro` dispose de SELECT sans INSERT. La connectivité est vérifiée par `/api/health`. Les droits de collecte, stockage et redistribution restent désactivés dans le registre de conformité. Aucune observation de marché Mansa n’est persistée dans Neon : les réponses sont servies par cache Vercel dans la fenêtre autorisée. L’ancienne variable `DATABASE_URL` a été vidée et marquée obsolète ; elle peut être supprimée manuellement des variables Preview.
 
 ## Tests
-`npm test` exécute les tests de la fonction API : verrou de diffusion, clé serveur obligatoire, plan Pro pour l’historique, méthode HTTP, validation des paramètres, quota fournisseur, endpoints indices/variations, cache et filtrage des champs exposés.
+`npm test` exécute 15 tests automatisés couvrant le contrôle first-party, le verrou de diffusion, la clé serveur, le plan Pro, la méthode HTTP, la validation des paramètres, les quotas, les indices, les variations et la minimisation des champs. `npm run build` exécute ces tests avant de préparer les fichiers statiques pour Vercel.
 
 ## Développement local
 Installer Vercel CLI, puis lancer `npm run dev`. Placer les variables dans `.env.local` (jamais commitées).

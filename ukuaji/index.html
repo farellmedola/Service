@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#050607">
+<meta name="theme-color" content="#080b08">
 <meta name="robots" content="noindex,nofollow">
 <meta name="description" content="Ukuaji — plateforme d’analyse des marchés financiers africains.">
 <title>Ukuaji — African Markets</title>
@@ -16,18 +16,18 @@
 <body>
 <div id="splash" aria-hidden="true">
   <div class="splash-orbit"></div>
-  <img src="/assets/logo.jpg" alt="" class="splash-logo">
+  <img src="/assets/logo.jpg" alt="Ukuaji" class="splash-logo" decoding="async">
   <span class="splash-word">ukuaji<span>.</span></span>
 </div>
 <div id="app">
   <header class="topbar">
     <a class="brand" href="/" aria-label="Ukuaji — accueil">
-      <span class="brand-mark"><img src="/assets/logo.jpg" alt="Ukuaji" onerror="this.closest('.brand-mark').classList.add('logo-missing')"></span>
+      <span class="brand-mark"><img src="/assets/logo.jpg" alt="Ukuaji" decoding="async" onerror="this.closest('.brand-mark').classList.add('logo-missing')"></span>
       <span class="brand-name">ukuaji<span>.</span></span>
     </a>
     <div class="market-switch"><span class="market-pulse"></span><span>AFRICAN MARKETS</span><span class="market-caret">⌄</span></div>
     <label class="searchbox"><span>⌕</span><input id="q" placeholder="Rechercher un symbole, une entreprise…" autocomplete="off" aria-label="Rechercher un instrument"><kbd>⌘ K</kbd><ul id="results"></ul></label>
-    <div class="top-actions"><span class="session-label">SESSION MARCHÉ</span><button id="fs" class="icon-button" title="Plein écran" aria-label="Plein écran">⛶</button><button class="avatar" aria-label="Compte">F</button></div>
+    <div class="top-actions"><span class="session-label">MARCHÉS EN DIRECT</span><button id="fs" class="icon-button" title="Plein écran" aria-label="Plein écran">⛶</button><button class="avatar" aria-label="Compte">F</button></div>
   </header>
   <div class="workspace">
     <aside class="leftbar">
@@ -57,7 +57,7 @@
           <div class="chart-toolbar-right"><div class="range-buttons" id="ranges"><button data-range="1M">1M</button><button data-range="3M">3M</button><button data-range="6M">6M</button><button class="on" data-range="1Y">1A</button><button data-range="2Y">2A</button><button data-range="5Y">5A</button><button data-range="ALL">Tout</button></div><button id="sma-toggle" class="chart-tool">SMA 20</button><button id="chart-expand" class="icon-button" title="Agrandir le graphique">⛶</button></div>
         </div>
         <div class="chart-legend" id="chart-legend"><span>OUV. <b>—</b></span><span>PLUS HAUT <b>—</b></span><span>PLUS BAS <b>—</b></span><span>CLÔT. <b>—</b></span><span>VOL. <b>—</b></span></div>
-        <div class="chart-stage" id="chart-stage"><canvas id="chart"></canvas><div id="chart-empty" class="chart-empty"><span class="empty-glyph">⌁</span><strong>Graphique de marché</strong><p>Choisissez un instrument pour afficher son historique de cotation.</p></div><div id="chart-tip" class="chart-tip"></div></div>
+        <div class="chart-stage" id="chart-stage"><canvas id="chart"></canvas><div id="chart-empty" class="chart-empty"><span class="empty-glyph">⌁</span><strong>Analyse graphique</strong><p>Sélectionnez une valeur pour afficher les données de marché disponibles.</p></div><div id="chart-tip" class="chart-tip"></div></div>
         <div class="chart-footer"><span id="chart-period-label">Période : 1 an</span><span id="chart-freshness">En attente des données historiques</span></div>
       </section>
       <section class="bottom-panel">

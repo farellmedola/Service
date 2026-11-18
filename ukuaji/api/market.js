@@ -56,6 +56,7 @@ function send(res, status, body, cache = 'no-store') {
   res.setHeader('Cache-Control', cache);
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Vary', 'X-Requested-With');
   res.status(status).json(body);
 }
 export default async function handler(req, res) {

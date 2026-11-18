@@ -10,16 +10,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ status: 'error', code: 'METHOD_NOT_ALLOWED' });
   }
 
-  if (!process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_READONLY_URL) {
     return res.status(503).json({
       status: 'degraded',
       database: 'not_configured',
-      code: 'DATABASE_NOT_CONFIGURED'
+      code: 'DATABASE_READONLY_NOT_CONFIGURED'
     });
   }
 
   try {
-    const sql = neon(process.env.DATABASE_URL);
+    const sql = neon(process.env.DATABASE_READONLY_URL);
     await sql`SELECT 1 AS ok`;
     return res.status(200).json({
       status: 'ok',

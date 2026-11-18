@@ -18,3 +18,8 @@
 .attribution a{color:var(--savanna);text-decoration:none}
 .attribution a:hover{text-decoration:underline}
 @media(max-width:900px){.plan-note{display:none}.collection-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}}
+
+.global-attribution{color:var(--dim);font-size:11px;white-space:nowrap}
+.global-attribution a{color:var(--savanna);text-decoration:none}
+.global-attribution a:hover{text-decoration:underline}
+@media(max-width:600px){.global-attribution{display:none}}

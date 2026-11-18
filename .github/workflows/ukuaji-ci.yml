@@ -1,0 +1,40 @@
+name: Ukuaji CI
+
+on:
+  push:
+    branches: ["ukuaji/platform"]
+    paths:
+      - "ukuaji/**"
+      - ".github/workflows/ukuaji-ci.yml"
+  pull_request:
+    branches: ["ukuaji/platform"]
+    paths:
+      - "ukuaji/**"
+      - ".github/workflows/ukuaji-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ukuaji
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+      - name: Run tests
+        run: npm test
+      - name: Check JavaScript syntax
+        run: |
+          node --check api/market.js
+          node --check api/health.js
+          node --check js/app.js
+          node --check js/data.js

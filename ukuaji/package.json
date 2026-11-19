@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vercel dev",
     "test": "node --test",
-    "build": "npm test && rm -rf public && mkdir -p public"
+    "build": "npm test && rm -rf public && mkdir -p public && printf 'Ukuaji frontend temporarily offline.\\n' > public/offline.txt"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.2.1"

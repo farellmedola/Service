@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vercel dev",
     "test": "node --test",
-    "build": "npm test && rm -rf public && mkdir -p public && cp index.html public/ && cp -R css js assets public/"
+    "build": "npm test"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.2.1"
